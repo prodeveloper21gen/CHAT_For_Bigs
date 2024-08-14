@@ -198,9 +198,3 @@ body {
 .message .delete-button:hover {
     background-color: #cc0000;
 }
-
-.timestamp {
-    font-size: 0.8em;
-    color: #00000000;
-    margin-top: 2px;
-}
