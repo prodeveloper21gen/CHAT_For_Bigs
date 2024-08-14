@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHAT_FOR_BIGS_AND_SENIORS</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="nameModal" class="modal">
+        <div class="modal-content">
+            <h2>Введите ваше имя</h2>
+            <input type="text" id="usernameInput" placeholder="Ваше имя...">
+            <button id="enterChatButton">Войти в чат</button>
+        </div>
+    </div>
+
+    <div class="chat-container" style="display:none;">
+        <header class="chat-header">
+            <h1>Групповой Чат</h1>
+            <button id="darkModeToggle">Dark Mode</button>
+        </header>
+        <div id="messageList" class="message-list"></div>
+        <div class="message-input-container">
+            <input type="text" id="messageInput" placeholder="Введите сообщение...">
+            <button id="sendMessageButton">Отправить</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

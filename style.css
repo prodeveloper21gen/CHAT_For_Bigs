@@ -1,0 +1,197 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+    overflow: hidden;
+}
+
+.modal {
+    display: block;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 300px;
+    text-align: center;
+    border-radius: 8px;
+}
+
+.modal-content input {
+    width: 80%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+.modal-content button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: #fff;
+    cursor: pointer;
+}
+
+.modal-content button:hover {
+    background-color: #0056b3;
+}
+
+.chat-container {
+    max-width: 100%;
+    background-color: #4d060600;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    height: 80vh;
+}
+
+.chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0px 10px;
+    background-color: #007bff;
+    color: #fff;
+    border-radius: 12px 12px 0 0;
+}
+
+.message-list {
+    flex-grow: 1;
+    padding: 15px;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: calc(100% - 43px); /* Вычисляем высоту сообщения в зависимости от высоты заголовка и ввода сообщения */
+}
+
+.message {
+    max-width: 75%;
+    padding: 10px;
+    border-radius: 15px;
+    background-color: #e0e0e0;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    align-self: flex-start;
+}
+
+.message.user {
+    background-color: #007bff;
+    color: #fff;
+    align-self: flex-end;
+}
+
+.message-input-container {
+    width: 98%;
+    position: absolute;
+    top: 610px;
+    padding: 20px;
+    background-color: #d1d1d193;
+    border-radius: 0 0 12px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.message-input-container input {
+    position: sticky;
+    flex-grow: 1;
+    padding: 10px;
+    border-radius: 20px;
+    border: 1px solid #ccc;
+    outline: none;
+}
+
+.message-input-container button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 20px;
+    background-color: #007bff;
+    color: #fff;
+    cursor: pointer;
+}
+
+.message-input-container button:hover {
+    background-color: #0056b3;
+}
+
+.dark-mode {
+    background-color: #181818;
+    color: #f1f1f1;
+}
+
+.dark-mode .chat-header {
+    background-color: #5e5e5e;
+}
+
+.dark-mode .message-input-container {
+    background-color: #333;
+}
+
+.dark-mode .message-input-container input {
+    background-color: #444;
+    border-color: #555;
+    color: #f1f1f1;
+}
+
+.dark-mode .message-input-container button {
+    background-color: #444;
+}
+
+.dark-mode .message-input-container button:hover {
+    background-color: #222;
+}
+
+.dark-mode .message {
+    background-color: #444;
+    color: #f1f1f1;
+}
+
+.dark-mode .message.user {
+    background-color: #0056b3;
+}
+.message {
+    max-width: 75%;
+    padding: 10px;
+    border-radius: 15px;
+    background-color: #e0e0e0;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    position: relative; /* Для позиционирования кнопки удаления */
+    align-self: flex-start;
+}
+
+.message.user {
+    background-color: #007bff;
+    color: #fff;
+    align-self: flex-end;
+}
+
+.message .delete-button {
+    position: relative;
+    top: 5px;
+    left: 5px;
+    background-color: #ff4d4d;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.message .delete-button:hover {
+    background-color: #cc0000;
+}
