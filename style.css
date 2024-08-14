@@ -85,12 +85,14 @@ body {
     word-wrap: break-word;
     overflow-wrap: break-word;
     align-self: flex-start;
+    margin-bottom: 20px;
 }
 
 .message.user {
     background-color: #007bff;
     color: #fff;
     align-self: flex-end;
+    margin-bottom: 20px;
 }
 
 .message-input-container {
