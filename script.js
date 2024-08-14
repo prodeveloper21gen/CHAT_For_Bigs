@@ -57,7 +57,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         messageElement.innerHTML = `
             <strong>${message.username}:</strong> ${message.text}
-            <div class="timestamp">${message.time}</div>
             ${message.username === username ? `<button class="delete-button" data-id="${message.id}">Удалить</button>` : ""}
         `;
         messageList.appendChild(messageElement);
