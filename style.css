@@ -98,7 +98,7 @@ body {
     position: absolute;
     top: 89%;
     padding: 20px;
-    background-color: #d1d1d193;
+    background-color: #d1d1d100;
     border-radius: 0 0 12px 12px;
     display: flex;
     align-items: center;
@@ -197,9 +197,19 @@ body {
 @media (max-width:512px){
     .message-input-container {
         width: 90%;
-        top: 91.5%;
+        top: 90%; 
+        background-color: #00000000;
     }
     .message-input-container button{
         margin-right: 10px;
+    }
+    .message-list {
+        flex-grow: 1;
+        padding: 21px 10px;
+        overflow-x: hidden;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        max-height: 96%;
     }
 }
