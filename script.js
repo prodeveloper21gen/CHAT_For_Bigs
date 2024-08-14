@@ -57,6 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         messageElement.innerHTML = `
             <strong>${message.username}:</strong> ${message.text}
+            <div class="timestamp">${message.time}</div>
             ${message.username === username ? `<button class="delete-button" data-id="${message.id}">Удалить</button>` : ""}
         `;
         messageList.appendChild(messageElement);
@@ -65,22 +66,25 @@ document.addEventListener("DOMContentLoaded", () => {
     // Отправка сообщения
     function sendMessage() {
         const text = messageInput.value.trim();
+        const time = new Date().toLocaleTimeString(); // Получение текущего времени
 
         if (text !== "" && username) {
+            const message = { username, text, time }; // Формирование сообщения с временем
+            displayMessage(message); // Отображаем сообщение на клиенте сразу
+
+            // Отправка сообщения на сервер
             fetch("https://66b99baffa763ff550f8d5e8.mockapi.io/apiBack/users", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ username, text })
+                body: JSON.stringify(message) // Отправляем сообщение вместе с временем
             })
-            .then(response => response.json())
-            .then(data => {
-                displayMessage(data);
+            .then(() => {
                 messageInput.value = "";
                 messageList.scrollTop = messageList.scrollHeight;
             })
-            .catch(error => console.error("Ошибка отправки сообщения:", error));
+            .catch(error => console.error("Ошибка отправки сообщения на сервер:", error));
         } else {
             alert("Пожалуйста, введите сообщение и убедитесь, что ваше имя задано.");
         }
