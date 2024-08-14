@@ -63,7 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Отправка сообщения
-    sendMessageButton.addEventListener("click", () => {
+    function sendMessage() {
         const text = messageInput.value.trim();
 
         if (text !== "" && username) {
@@ -83,6 +83,14 @@ document.addEventListener("DOMContentLoaded", () => {
             .catch(error => console.error("Ошибка отправки сообщения:", error));
         } else {
             alert("Пожалуйста, введите сообщение и убедитесь, что ваше имя задано.");
+        }
+    }
+
+    // Добавляем обработчик события для отправки сообщения при нажатии Enter
+    messageInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+            event.preventDefault(); // Предотвращаем добавление новой строки в поле ввода
+            sendMessage();
         }
     });
 
