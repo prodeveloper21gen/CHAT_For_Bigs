@@ -66,7 +66,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // Отправка сообщения
     function sendMessage() {
         const text = messageInput.value.trim();
-        const time = new Date().toLocaleTimeString(); // Получение текущего времени
 
         if (text !== "" && username) {
             fetch("https://66b99baffa763ff550f8d5e8.mockapi.io/apiBack/users", {
@@ -74,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ username, text, time }) // Добавление времени в запрос
+                body: JSON.stringify({ username, text }) // Добавление времени в запрос
             })
             .then(response => response.json())
             .then(data => {
