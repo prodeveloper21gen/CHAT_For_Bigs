@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         messageElement.innerHTML = `
             <strong>${message.username}:</strong> ${message.text}
-            <div class="timestamp">${message.time}</div>
+            <div class="timestamp">${new Date().toLocaleTimeString()}</div>
             ${message.username === username ? `<button class="delete-button" data-id="${message.id}">Удалить</button>` : ""}
         `;
         messageList.appendChild(messageElement);
@@ -66,11 +66,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // Отправка сообщения
     function sendMessage() {
         const text = messageInput.value.trim();
-        const time = new Date().toLocaleTimeString(); // Получение текущего времени
 
         if (text !== "" && username) {
-            const message = { username, text, time }; // Формирование сообщения с временем
-            displayMessage(message); // Отображаем сообщение на клиенте сразу
+            const message = { username, text, time: new Date().toLocaleTimeString() }; // Формирование времени на клиенте
+            displayMessage(message);
+            messageInput.value = "";
+            messageList.scrollTop = messageList.scrollHeight;
 
             // Отправка сообщения на сервер
             fetch("https://66b99baffa763ff550f8d5e8.mockapi.io/apiBack/users", {
@@ -78,13 +79,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify(message) // Отправляем сообщение вместе с временем
-            })
-            .then(() => {
-                messageInput.value = "";
-                messageList.scrollTop = messageList.scrollHeight;
-            })
-            .catch(error => console.error("Ошибка отправки сообщения на сервер:", error));
+                body: JSON.stringify({ username, text })
+            }).catch(error => console.error("Ошибка отправки сообщения на сервер:", error));
         } else {
             alert("Пожалуйста, введите сообщение и убедитесь, что ваше имя задано.");
         }
