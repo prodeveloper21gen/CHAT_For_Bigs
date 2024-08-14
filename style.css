@@ -65,13 +65,9 @@ body {
     padding: 0px 10px;
     background-color: #007bff;
     color: #fff;
-    border-radius: 12px 12px 0 0;
 }
 
 .message-list {
-    background-image: url("https://i.redd.it/rx1b7oy1r0wc1.jpeg");
-    background-position: center;
-    background-size: cover;
     flex-grow: 1;
     padding: 15px;
     overflow-x: hidden;
@@ -100,7 +96,7 @@ body {
 .message-input-container {
     width: 98%;
     position: absolute;
-    top: 610px;
+    top: 89%;
     padding: 20px;
     background-color: #d1d1d193;
     border-radius: 0 0 12px 12px;
@@ -197,4 +193,13 @@ body {
 
 .message .delete-button:hover {
     background-color: #cc0000;
+}
+@media (max-width:512px){
+    .message-input-container {
+        width: 96%;
+        top: 91.5%;
+    }
+    .message-input-container button{
+        margin-right: 20px;
+    }
 }
