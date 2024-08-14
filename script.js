@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const nameModal = document.getElementById("nameModal");
 
     let username = "";
+    const MESSAGE_UPDATE_INTERVAL = 5000; // Интервал обновления сообщений в миллисекундах
 
     // Обработчик нажатия на кнопку входа в чат
     enterChatButton.addEventListener("click", () => {
@@ -18,6 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
             nameModal.style.display = "none";
             chatContainer.style.display = "block";
             loadMessages();
+            startMessagePolling(); // Начать опрос для обновления сообщений
         } else {
             alert("Пожалуйста, введите корректное имя.");
         }
@@ -102,4 +104,9 @@ document.addEventListener("DOMContentLoaded", () => {
             .catch(error => console.error("Ошибка удаления сообщения:", error));
         }
     });
+
+    // Функция для периодического обновления сообщений
+    function startMessagePolling() {
+        setInterval(loadMessages, MESSAGE_UPDATE_INTERVAL);
+    }
 });
