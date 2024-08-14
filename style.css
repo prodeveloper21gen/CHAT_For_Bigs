@@ -212,6 +212,6 @@ body {
         display: flex;
         flex-direction: column;
         gap: 10px;
-        max-height: 88.5%;
+        max-height: 92.5%;
     }
 }
