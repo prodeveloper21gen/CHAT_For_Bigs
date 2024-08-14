@@ -196,10 +196,10 @@ body {
 }
 @media (max-width:512px){
     .message-input-container {
-        width: 96%;
+        width: 90%;
         top: 91.5%;
     }
     .message-input-container button{
-        margin-right: 20px;
+        margin-right: 10px;
     }
 }
