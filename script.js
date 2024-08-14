@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         messageElement.innerHTML = `
             <strong>${message.username}:</strong> ${message.text}
-            <div class="timestamp">${new Date().toLocaleTimeString()}</div>
+            <div class="timestamp">${message.time}</div>
             ${message.username === username ? `<button class="delete-button" data-id="${message.id}">Удалить</button>` : ""}
         `;
         messageList.appendChild(messageElement);
@@ -66,21 +66,23 @@ document.addEventListener("DOMContentLoaded", () => {
     // Отправка сообщения
     function sendMessage() {
         const text = messageInput.value.trim();
+        const time = new Date().toLocaleTimeString(); // Получение текущего времени
 
         if (text !== "" && username) {
-            const message = { username, text, time: new Date().toLocaleTimeString() }; // Формирование времени на клиенте
-            displayMessage(message);
-            messageInput.value = "";
-            messageList.scrollTop = messageList.scrollHeight;
-
-            // Отправка сообщения на сервер
             fetch("https://66b99baffa763ff550f8d5e8.mockapi.io/apiBack/users", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ username, text })
-            }).catch(error => console.error("Ошибка отправки сообщения на сервер:", error));
+                body: JSON.stringify({ username, text, time }) // Добавление времени в запрос
+            })
+            .then(response => response.json())
+            .then(data => {
+                displayMessage(data);
+                messageInput.value = "";
+                messageList.scrollTop = messageList.scrollHeight;
+            })
+            .catch(error => console.error("Ошибка отправки сообщения:", error));
         } else {
             alert("Пожалуйста, введите сообщение и убедитесь, что ваше имя задано.");
         }
@@ -92,6 +94,11 @@ document.addEventListener("DOMContentLoaded", () => {
             event.preventDefault(); // Предотвращаем добавление новой строки в поле ввода
             sendMessage();
         }
+    });
+
+    // Добавляем обработчик для кнопки отправки сообщения
+    sendMessageButton.addEventListener("click", () => {
+        sendMessage();
     });
 
     // Обработчик кликов на кнопку удаления
