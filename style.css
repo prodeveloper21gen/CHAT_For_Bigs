@@ -205,11 +205,11 @@ body {
     }
     .message-list {
         flex-grow: 1;
-        padding: 21px 10px;
+        padding: 25px 10px;
         overflow-x: hidden;
         display: flex;
         flex-direction: column;
         gap: 10px;
-        max-height: 96%;
+        max-height: 94.5%;
     }
 }
