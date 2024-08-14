@@ -210,6 +210,6 @@ body {
         display: flex;
         flex-direction: column;
         gap: 10px;
-        max-height: 94.5%;
+        max-height: 90.5%;
     }
 }
