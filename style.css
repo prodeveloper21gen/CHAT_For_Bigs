@@ -70,6 +70,7 @@ body {
 
 .message-list {
     background-image: url("https://i.redd.it/rx1b7oy1r0wc1.jpeg");
+    background-position: center;
     flex-grow: 1;
     padding: 15px;
     overflow-x: hidden;
