@@ -129,19 +129,26 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Загрузка сообщений
-    function loadMessages() {
-        fetch(API_URL)
-            .then(response => response.json())
-            .then(data => {
-                messageList.innerHTML = "";
-                data.forEach(user => {
-                    user.messages.forEach(message => {
-                        displayMessage(message);
-                    });
-                });
-            })
-            .catch(error => console.error("Ошибка загрузки сообщений:", error));
-    }
+// Функция для загрузки сообщений по порядку их добавления
+function loadMessages() {
+    fetch(API_URL)
+        .then(response => response.json())
+        .then(data => {
+            messageList.innerHTML = "";  // Очищаем список сообщений
+            
+            // Получаем все сообщения из всех пользователей
+            const allMessages = data.flatMap(user => user.messages);
+            
+            // Сортируем сообщения по времени отправки (timestamp)
+            allMessages.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+            
+            // Отображаем каждое сообщение
+            allMessages.forEach(message => {
+                displayMessage(message);
+            });
+        })
+        .catch(error => console.error("Ошибка загрузки сообщений:", error));
+}
 
     // Отображение сообщения
     function displayMessage(message) {
@@ -154,22 +161,27 @@ document.addEventListener("DOMContentLoaded", () => {
             <strong>${message.username}:</strong> ${message.text}
             ${message.username === username ? `<button class="delete-button" data-id="${message.id}">Удалить</button>` : ""}
         `;
-        messageList.appendChild(messageElement);
+        messageList.appendChild(messageElement); // Добавляем сообщение в конец списка
     }
+    
 
     // Отправка сообщения
     function sendMessage() {
         const text = messageInput.value.trim();
-
+    
         if (text !== "" && username) {
             fetch(API_URL)
                 .then(response => response.json())
                 .then(data => {
                     const user = data.find(user => user.username === username);
                     if (user) {
-                        const messageId = Date.now().toString(); // Простой способ генерировать уникальный ID сообщения
-                        const newMessage = { id: messageId, text: text, username: username, timestamp: new Date().toISOString() };
-
+                        const newMessage = {
+                            id: Date.now().toString(), // Уникальный ID сообщения
+                            text: text,
+                            username: username,
+                            timestamp: new Date().toISOString()
+                        };
+    
                         fetch(`${API_URL}/${user.id}`, {
                             method: "PUT",
                             headers: {
@@ -177,14 +189,14 @@ document.addEventListener("DOMContentLoaded", () => {
                             },
                             body: JSON.stringify({
                                 ...user,
-                                messages: [...user.messages, newMessage]
+                                messages: [...user.messages, newMessage] // Добавляем новое сообщение в конец списка
                             })
                         })
                         .then(response => response.json())
                         .then(data => {
-                            displayMessage(newMessage);
+                            displayMessage(newMessage); // Отображаем новое сообщение
                             messageInput.value = "";
-                            messageList.scrollTop = messageList.scrollHeight;
+                            messageList.scrollTop = messageList.scrollHeight; // Прокручиваем чат вниз
                         })
                         .catch(error => console.error("Ошибка отправки сообщения:", error));
                     }
@@ -194,7 +206,7 @@ document.addEventListener("DOMContentLoaded", () => {
             alert("Пожалуйста, введите сообщение и убедитесь, что ваше имя задано.");
         }
     }
-
+    
     // Добавляем обработчик события для отправки сообщения при нажатии Enter
     messageInput.addEventListener("keydown", (event) => {
         if (event.key === "Enter") {
