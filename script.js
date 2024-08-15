@@ -8,61 +8,34 @@ document.addEventListener("DOMContentLoaded", () => {
     const chatContainer = document.querySelector(".chat-container");
     const nameModal = document.getElementById("nameModal");
 
-    let username = localStorage.getItem("username") || ""; // Сохраняем имя пользователя в localStorage
-    const MESSAGE_UPDATE_INTERVAL = 5000;
+    let username = "";
+    const MESSAGE_UPDATE_INTERVAL = 5000; // Интервал обновления сообщений в миллисекундах
 
-    if (username) {
-        checkUsernameAvailability(username).then(isAvailable => {
-            if (isAvailable) {
-                nameModal.style.display = "none";
-                chatContainer.style.display = "block";
-                loadMessages();
-                startMessagePolling();
-            } else {
-                localStorage.removeItem("username"); // Удаляем имя из localStorage, если оно больше не доступно
-                nameModal.style.display = "block";
-            }
-        });
-    }
-
+    // Обработчик нажатия на кнопку входа в чат
     enterChatButton.addEventListener("click", () => {
         const enteredName = usernameInput.value.trim();
         if (validateName(enteredName)) {
-            checkUsernameAvailability(enteredName).then(isAvailable => {
-                if (isAvailable) {
-                    username = enteredName;
-                    localStorage.setItem("username", username); // Сохраняем имя в localStorage
-                    nameModal.style.display = "none";
-                    chatContainer.style.display = "block";
-                    loadMessages();
-                    startMessagePolling();
-                } else {
-                    alert("Уже есть такое имя.");
-                }
-            });
+            username = enteredName;
+            nameModal.style.display = "none";
+            chatContainer.style.display = "block";
+            loadMessages();
+            startMessagePolling(); // Начать опрос для обновления сообщений
         } else {
             alert("Пожалуйста, введите корректное имя.");
         }
     });
 
+    // Проверка корректности имени
     function validateName(name) {
         return name.length > 0 && !/^\s*$/.test(name);
     }
 
-    function checkUsernameAvailability(name) {
-        return fetch(`https://66b99baffa763ff550f8d5e8.mockapi.io/apiBack/users?username=${name}`)
-            .then(response => response.json())
-            .then(data => data.length === 0)
-            .catch(error => {
-                console.error("Ошибка проверки имени:", error);
-                return false;
-            });
-    }
-
+    // Dark Mode переключение
     darkModeToggle.addEventListener("click", () => {
         document.body.classList.toggle("dark-mode");
     });
 
+    // Загрузка сообщений
     function loadMessages() {
         fetch("https://66b99baffa763ff550f8d5e8.mockapi.io/apiBack/users")
             .then(response => response.json())
@@ -75,6 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
             .catch(error => console.error("Ошибка загрузки сообщений:", error));
     }
 
+    // Отображение сообщения
     function displayMessage(message) {
         const messageElement = document.createElement("div");
         messageElement.classList.add("message");
@@ -88,6 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
         messageList.appendChild(messageElement);
     }
 
+    // Отправка сообщения
     function sendMessage() {
         const text = messageInput.value.trim();
 
@@ -97,7 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ username, text })
+                body: JSON.stringify({ username, text }) // Добавление времени в запрос
             })
             .then(response => response.json())
             .then(data => {
@@ -111,17 +86,20 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    // Добавляем обработчик события для отправки сообщения при нажатии Enter
     messageInput.addEventListener("keydown", (event) => {
         if (event.key === "Enter") {
-            event.preventDefault();
+            event.preventDefault(); // Предотвращаем добавление новой строки в поле ввода
             sendMessage();
         }
     });
 
+    // Добавляем обработчик для кнопки отправки сообщения
     sendMessageButton.addEventListener("click", () => {
         sendMessage();
     });
 
+    // Обработчик кликов на кнопку удаления
     messageList.addEventListener("click", (event) => {
         if (event.target.classList.contains("delete-button")) {
             const messageId = event.target.getAttribute("data-id");
@@ -140,6 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    // Функция для периодического обновления сообщений
     function startMessagePolling() {
         setInterval(loadMessages, MESSAGE_UPDATE_INTERVAL);
     }
