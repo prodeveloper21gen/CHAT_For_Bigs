@@ -1,10 +1,14 @@
 body {
     font-family: Arial, sans-serif;
+    background-image: url("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTaNoQ_wZam7dkm9GcFhL7xGNj_Xw7jF3spA&s");
+    background-position: center;
+    background-size: cover;
     margin: 0;
     padding: 0;
     background-color: #f4f4f4;
     color: #333;
     overflow: hidden;
+    height: 100vh;
 }
 
 .modal {
@@ -68,6 +72,8 @@ body {
 }
 
 .message-list {
+    background-position: center;
+    background-size: cover;
     flex-grow: 1;
     padding: 15px;
     overflow-x: hidden;
@@ -89,7 +95,7 @@ body {
 }
 
 .message.user {
-    background-color: #007bff;
+    background-color: #6200ff;
     color: #fff;
     align-self: flex-end;
     margin-bottom: 20px;
@@ -135,7 +141,7 @@ body {
 }
 
 .dark-mode .chat-header {
-    background-color: #5e5e5e;
+    background-color: #272727;
 }
 
 .dark-mode .message-input-container {
@@ -157,12 +163,12 @@ body {
 }
 
 .dark-mode .message {
-    background-color: #444;
+    background-color: #272727;
     color: #f1f1f1;
 }
 
 .dark-mode .message.user {
-    background-color: #5c00b3;
+    background-color: #002ab3;
 }
 .message {
     max-width: 75%;
@@ -176,7 +182,7 @@ body {
 }
 
 .message.user {
-    background-color: #007bff;
+    background-color: #8400ff;
     color: #fff;
     align-self: flex-end;
 }
