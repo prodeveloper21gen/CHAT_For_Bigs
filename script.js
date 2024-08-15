@@ -134,12 +134,11 @@ document.addEventListener("DOMContentLoaded", () => {
             .then(response => response.json())
             .then(data => {
                 messageList.innerHTML = "";
-                const user = data.find(user => user.username === username);
-                if (user) {
+                data.forEach(user => {
                     user.messages.forEach(message => {
                         displayMessage(message);
                     });
-                }
+                });
             })
             .catch(error => console.error("Ошибка загрузки сообщений:", error));
     }
