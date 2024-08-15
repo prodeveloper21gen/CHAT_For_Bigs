@@ -139,7 +139,7 @@ body {
 }
 
 .dark-mode .message-input-container {
-    background-color: #33333300;
+    background-color: #00000000;
 }
 
 .dark-mode .message-input-container input {
@@ -162,7 +162,7 @@ body {
 }
 
 .dark-mode .message.user {
-    background-color: #0056b3;
+    background-color: #5c00b3;
 }
 .message {
     max-width: 75%;
@@ -185,7 +185,7 @@ body {
     position: relative;
     top: 5px;
     left: 5px;
-    background-color: #ff4d4d;
+    background-color: #ff1e00;
     color: #fff;
     border: none;
     border-radius: 12px;
@@ -212,6 +212,6 @@ body {
         display: flex;
         flex-direction: column;
         gap: 10px;
-        max-height: 92.5%;
+        max-height: 94.5%;
     }
 }
