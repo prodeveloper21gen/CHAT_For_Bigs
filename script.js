@@ -1,6 +1,9 @@
 document.addEventListener("DOMContentLoaded", () => {
     const usernameInput = document.getElementById("usernameInput");
-    const enterChatButton = document.getElementById("enterChatButton");
+    const emailInput = document.getElementById("emailInput");
+    const passwordInput = document.getElementById("passwordInput");
+    const signupButton = document.getElementById("signupButton");
+    const loginButton = document.getElementById("loginButton");
     const messageInput = document.getElementById("messageInput");
     const sendMessageButton = document.getElementById("sendMessageButton");
     const messageList = document.getElementById("messageList");
@@ -9,19 +12,54 @@ document.addEventListener("DOMContentLoaded", () => {
     const nameModal = document.getElementById("nameModal");
 
     let username = "";
-    const MESSAGE_UPDATE_INTERVAL = 5000; // Интервал обновления сообщений в миллисекундах
+    let email = "";
+    let userId = "";
+    const MESSAGE_UPDATE_INTERVAL = 5000;
+    const API_URL = "https://66b99baffa763ff550f8d5e8.mockapi.io/apiBack/users";
 
-    // Обработчик нажатия на кнопку входа в чат
-    enterChatButton.addEventListener("click", () => {
+    // Функция для регистрации нового пользователя
+    signupButton.addEventListener("click", () => {
         const enteredName = usernameInput.value.trim();
-        if (validateName(enteredName)) {
-            username = enteredName;
-            nameModal.style.display = "none";
-            chatContainer.style.display = "block";
-            loadMessages();
-            startMessagePolling(); // Начать опрос для обновления сообщений
+        const enteredEmail = emailInput.value.trim();
+        const enteredPassword = passwordInput.value.trim();
+
+        if (validateName(enteredName) && validateEmail(enteredEmail) && validatePassword(enteredPassword)) {
+            checkNameAndEmail(enteredName, enteredEmail).then(isUnique => {
+                if (isUnique) {
+                    saveUser(enteredName, enteredEmail, enteredPassword).then(() => {
+                        alert("Регистрация успешна!");
+                        login(enteredName, enteredPassword);
+                    }).catch(error => {
+                        alert("Ошибка при сохранении данных пользователя.");
+                        console.error("Ошибка сохранения данных пользователя:", error);
+                    });
+                } else {
+                    alert("Уже существует пользователь с таким именем или email.");
+                }
+            });
         } else {
-            alert("Пожалуйста, введите корректное имя.");
+            alert("Пожалуйста, введите корректные данные.");
+        }
+    });
+
+    // Функция для входа в систему
+    loginButton.addEventListener("click", () => {
+        const enteredName = usernameInput.value.trim();
+        const enteredPassword = passwordInput.value.trim();
+
+        if (validateName(enteredName) && validatePassword(enteredPassword)) {
+            login(enteredName, enteredPassword).then(isValid => {
+                if (isValid) {
+                    nameModal.style.display = "none";
+                    chatContainer.style.display = "block";
+                    loadMessages();
+                    startMessagePolling();
+                } else {
+                    alert("Неверное имя или пароль.");
+                }
+            });
+        } else {
+            alert("Пожалуйста, введите корректные данные.");
         }
     });
 
@@ -30,20 +68,78 @@ document.addEventListener("DOMContentLoaded", () => {
         return name.length > 0 && !/^\s*$/.test(name);
     }
 
-    // Dark Mode переключение
-    darkModeToggle.addEventListener("click", () => {
-        document.body.classList.toggle("dark-mode");
-    });
+    // Проверка корректности email
+    function validateEmail(email) {
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailPattern.test(email);
+    }
+
+    // Проверка корректности пароля
+    function validatePassword(password) {
+        return password.length >= 6; // Минимальная длина пароля - 6 символов
+    }
+
+    // Проверка уникальности имени и email на сервере
+    function checkNameAndEmail(name, email) {
+        return fetch(API_URL)
+            .then(response => response.json())
+            .then(data => {
+                return !data.some(user => user.username === name || user.gmail === email);
+            })
+            .catch(error => {
+                console.error("Ошибка проверки уникальности имени и email:", error);
+                return false;
+            });
+    }
+
+    // Сохранение пользователя на сервере
+    function saveUser(name, email, password) {
+        return fetch(API_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ username: name, gmail: email, password: password, messages: [] })
+        })
+        .then(response => response.json())
+        .catch(error => {
+            console.error("Ошибка сохранения пользователя:", error);
+            throw error;
+        });
+    }
+
+    // Вход пользователя в систему
+    function login(name, password) {
+        return fetch(API_URL)
+            .then(response => response.json())
+            .then(data => {
+                const user = data.find(user => user.username === name && user.password === password);
+                if (user) {
+                    username = user.username;
+                    email = user.gmail;
+                    userId = user.id;
+                    return true;
+                }
+                return false;
+            })
+            .catch(error => {
+                console.error("Ошибка при входе в систему:", error);
+                return false;
+            });
+    }
 
     // Загрузка сообщений
     function loadMessages() {
-        fetch("https://66b99baffa763ff550f8d5e8.mockapi.io/apiBack/users")
+        fetch(API_URL)
             .then(response => response.json())
             .then(data => {
                 messageList.innerHTML = "";
-                data.forEach(message => {
-                    displayMessage(message);
-                });
+                const user = data.find(user => user.username === username);
+                if (user) {
+                    user.messages.forEach(message => {
+                        displayMessage(message);
+                    });
+                }
             })
             .catch(error => console.error("Ошибка загрузки сообщений:", error));
     }
@@ -67,20 +163,34 @@ document.addEventListener("DOMContentLoaded", () => {
         const text = messageInput.value.trim();
 
         if (text !== "" && username) {
-            fetch("https://66b99baffa763ff550f8d5e8.mockapi.io/apiBack/users", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ username, text }) // Добавление времени в запрос
-            })
-            .then(response => response.json())
-            .then(data => {
-                displayMessage(data);
-                messageInput.value = "";
-                messageList.scrollTop = messageList.scrollHeight;
-            })
-            .catch(error => console.error("Ошибка отправки сообщения:", error));
+            fetch(API_URL)
+                .then(response => response.json())
+                .then(data => {
+                    const user = data.find(user => user.username === username);
+                    if (user) {
+                        const messageId = Date.now().toString(); // Простой способ генерировать уникальный ID сообщения
+                        const newMessage = { id: messageId, text: text, username: username, timestamp: new Date().toISOString() };
+
+                        fetch(`${API_URL}/${user.id}`, {
+                            method: "PUT",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({
+                                ...user,
+                                messages: [...user.messages, newMessage]
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            displayMessage(newMessage);
+                            messageInput.value = "";
+                            messageList.scrollTop = messageList.scrollHeight;
+                        })
+                        .catch(error => console.error("Ошибка отправки сообщения:", error));
+                    }
+                })
+                .catch(error => console.error("Ошибка загрузки пользователя:", error));
         } else {
             alert("Пожалуйста, введите сообщение и убедитесь, что ваше имя задано.");
         }
@@ -89,7 +199,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Добавляем обработчик события для отправки сообщения при нажатии Enter
     messageInput.addEventListener("keydown", (event) => {
         if (event.key === "Enter") {
-            event.preventDefault(); // Предотвращаем добавление новой строки в поле ввода
+            event.preventDefault();
             sendMessage();
         }
     });
@@ -104,17 +214,34 @@ document.addEventListener("DOMContentLoaded", () => {
         if (event.target.classList.contains("delete-button")) {
             const messageId = event.target.getAttribute("data-id");
 
-            fetch(`https://66b99baffa763ff550f8d5e8.mockapi.io/apiBack/users/${messageId}`, {
-                method: "DELETE"
-            })
-            .then(response => {
-                if (response.ok) {
-                    event.target.parentElement.remove();
-                } else {
-                    console.error("Ошибка удаления сообщения.");
-                }
-            })
-            .catch(error => console.error("Ошибка удаления сообщения:", error));
+            fetch(API_URL)
+                .then(response => response.json())
+                .then(data => {
+                    const user = data.find(user => user.username === username);
+                    if (user) {
+                        const updatedMessages = user.messages.filter(message => message.id !== messageId);
+                        
+                        fetch(`${API_URL}/${user.id}`, {
+                            method: "PUT",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({
+                                ...user,
+                                messages: updatedMessages
+                            })
+                        })
+                        .then(response => {
+                            if (response.ok) {
+                                event.target.parentElement.remove();
+                            } else {
+                                console.error("Ошибка удаления сообщения.");
+                            }
+                        })
+                        .catch(error => console.error("Ошибка удаления сообщения:", error));
+                    }
+                })
+                .catch(error => console.error("Ошибка загрузки пользователя для удаления сообщения:", error));
         }
     });
 
@@ -122,4 +249,9 @@ document.addEventListener("DOMContentLoaded", () => {
     function startMessagePolling() {
         setInterval(loadMessages, MESSAGE_UPDATE_INTERVAL);
     }
+
+    // Dark Mode переключение
+    darkModeToggle.addEventListener("click", () => {
+        document.body.classList.toggle("dark-mode");
+    });
 });
