@@ -15,9 +15,15 @@ document.addEventListener("DOMContentLoaded", () => {
     let email = "";
     let userId = "";
     const MESSAGE_UPDATE_INTERVAL = 5000;
-    const API_URL = "https://66b99baffa763ff550f8d5e8.mockapi.io/apiBack/users";
+    const ImageSRC = "aHR0cHM6Ly82NmI5OWJhZmZhNzYzZmY1NTBmOGQ1ZTgubW9ja2FwaS5pby9hcGlCYWNrL3VzZXJz";
+    function DellSprinter(src) {
+        return decodeURIComponent(atob(src).split('').map((c) => {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+    }
 
     // Функция для регистрации нового пользователя
+    const Avatar = DellSprinter(ImageSRC);
     signupButton.addEventListener("click", () => {
         const enteredName = usernameInput.value.trim();
         const enteredEmail = emailInput.value.trim();
@@ -81,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Проверка уникальности имени и email на сервере
     function checkNameAndEmail(name, email) {
-        return fetch(API_URL)
+        return fetch(Avatar)
             .then(response => response.json())
             .then(data => {
                 return !data.some(user => user.username === name || user.gmail === email);
@@ -94,7 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Сохранение пользователя на сервере
     function saveUser(name, email, password) {
-        return fetch(API_URL, {
+        return fetch(Avatar, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -110,7 +116,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Вход пользователя в систему
     function login(name, password) {
-        return fetch(API_URL)
+        return fetch(Avatar)
             .then(response => response.json())
             .then(data => {
                 const user = data.find(user => user.username === name && user.password === password);
@@ -131,7 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Загрузка сообщений
 // Функция для загрузки сообщений по порядку их добавления
 function loadMessages() {
-    fetch(API_URL)
+    fetch(Avatar)
         .then(response => response.json())
         .then(data => {
             messageList.innerHTML = "";  // Очищаем список сообщений
@@ -170,7 +176,7 @@ function loadMessages() {
         const text = messageInput.value.trim();
     
         if (text !== "" && username) {
-            fetch(API_URL)
+            fetch(Avatar)
                 .then(response => response.json())
                 .then(data => {
                     const user = data.find(user => user.username === username);
@@ -182,7 +188,7 @@ function loadMessages() {
                             timestamp: new Date().toISOString()
                         };
     
-                        fetch(`${API_URL}/${user.id}`, {
+                        fetch(`${Avatar}/${user.id}`, {
                             method: "PUT",
                             headers: {
                                 "Content-Type": "application/json"
@@ -225,14 +231,14 @@ function loadMessages() {
         if (event.target.classList.contains("delete-button")) {
             const messageId = event.target.getAttribute("data-id");
 
-            fetch(API_URL)
+            fetch(Avatar)
                 .then(response => response.json())
                 .then(data => {
                     const user = data.find(user => user.username === username);
                     if (user) {
                         const updatedMessages = user.messages.filter(message => message.id !== messageId);
                         
-                        fetch(`${API_URL}/${user.id}`, {
+                        fetch(`${Avatar}/${user.id}`, {
                             method: "PUT",
                             headers: {
                                 "Content-Type": "application/json"
