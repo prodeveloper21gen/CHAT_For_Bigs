@@ -9,15 +9,18 @@
 <body>
     <div id="nameModal" class="modal">
         <div class="modal-content">
-            <h2>Введите ваше имя</h2>
+            <h2>Регистрация или Вход</h2>
             <input type="text" id="usernameInput" placeholder="Ваше имя...">
-            <button id="enterChatButton">Войти в чат</button>
+            <input type="email" id="emailInput" placeholder="Ваш email...">
+            <input type="password" id="passwordInput" placeholder="Ваш пароль...">
+            <button id="signupButton">Регистрация</button>
+            <button id="loginButton">Вход</button>
         </div>
     </div>
 
     <div class="chat-container" style="display:none;">
         <header class="chat-header">
-            <h1>Групповой Чат</h1>
+            <h1>Миравой Чат</h1>
             <button id="darkModeToggle">Dark Mode</button>
         </header>
         <div id="messageList" class="message-list"></div>
