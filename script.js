@@ -241,13 +241,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function formatText(text) {
         // Форматирование кода
-        text = text.replace(/```([\s\S]*?)```/g, '<pre class="code-block">$1</pre>');
+        text = text.replace(/```([\s\S]*?)```/g, '<div class="code-block-wrapper"><pre class="code-block">$1</pre><button class="copy-button">Копировать</button></div>');
         // Форматирование жирного текста
         text = text.replace(/\*\*([^\*]+)\*\*/g, '<strong>$1</strong>');
         // Форматирование курсивного текста
         text = text.replace(/\*([^\*]+)\*/g, '<em>$1</em>');
         return text;
-    }
+    }    
+
+    document.addEventListener("click", (event) => {
+        if (event.target.classList.contains("copy-button")) {
+            const codeBlock = event.target.previousElementSibling.innerText; // Получаем текст из блока кода
+            navigator.clipboard.writeText(codeBlock)
+                .then(() => {
+                    alert("Код скопирован в буфер обмена!");
+                })
+                .catch(err => {
+                    console.error("Ошибка при копировании кода:", err);
+                });
+        }
+    });
+
     function displayMessage(message) {
         let messageElement = document.querySelector(`.message[data-id='${message.id}']`);
         if (!messageElement) {
