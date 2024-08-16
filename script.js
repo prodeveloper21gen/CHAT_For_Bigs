@@ -227,6 +227,27 @@ document.addEventListener("DOMContentLoaded", () => {
             .catch(error => console.error("Ошибка загрузки сообщений:", error));
     }
 
+    // Функция для добавления форматирования
+    function applyFormatting(startTag, endTag) {
+        const cursorPosition = messageInput.selectionStart;
+        const value = messageInput.value;
+        const beforeCursor = value.slice(0, cursorPosition);
+        const afterCursor = value.slice(cursorPosition);
+        const selectedText = value.slice(messageInput.selectionStart, messageInput.selectionEnd);
+        messageInput.value = `${beforeCursor}${startTag}${selectedText}${endTag}${afterCursor}`;
+        messageInput.selectionStart = cursorPosition + startTag.length;
+        messageInput.selectionEnd = cursorPosition + startTag.length + selectedText.length;
+    }
+
+    function formatText(text) {
+        // Форматирование кода
+        text = text.replace(/```([\s\S]*?)```/g, '<pre class="code-block">$1</pre>');
+        // Форматирование жирного текста
+        text = text.replace(/\*\*([^\*]+)\*\*/g, '<strong>$1</strong>');
+        // Форматирование курсивного текста
+        text = text.replace(/\*([^\*]+)\*/g, '<em>$1</em>');
+        return text;
+    }
     function displayMessage(message) {
         let messageElement = document.querySelector(`.message[data-id='${message.id}']`);
         if (!messageElement) {
@@ -238,8 +259,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 messageElement.classList.add("user");
             }
 
+            const formattedText = formatText(message.text);
+
             messageElement.innerHTML = `
-                <strong>${message.username}:</strong> ${message.text}
+                <strong>${message.username}:</strong> ${formattedText}
                 <br><small>${new Date(message.timestamp).toLocaleTimeString()}</small>
                 ${message.username === username ? `
                     <button class="edit-button" data-id="${message.id}">Изменить</button>
@@ -257,17 +280,18 @@ document.addEventListener("DOMContentLoaded", () => {
     function updateMessageInDOM(message) {
         const messageElement = document.querySelector(`.message[data-id='${message.id}']`);
         if (messageElement) {
-            messageElement.querySelector('strong').nextSibling.textContent = message.text;
+            const formattedText = formatText(message.text);
+            messageElement.querySelector('strong').nextSibling.innerHTML = formattedText;
             messageElement.querySelector('small').textContent = new Date(message.timestamp).toLocaleTimeString();
         }
     }
 
     function sendMessage() {
         const text = messageInput.value.trim();
-    
+
         if (text !== "" && username) {
             const formattedText = text.replace(/\n/g, '<br>'); // Заменяем символы новой строки на <br>
-    
+
             fetch(Avatar)
                 .then(response => response.json())
                 .then(data => {
@@ -280,7 +304,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             username: username
                         };
                         const updatedMessages = [...user.messages, newMessage];
-    
+
                         return fetch(`${Avatar}/${user.id}`, {
                             method: "PUT",
                             headers: {
@@ -428,9 +452,11 @@ document.addEventListener("DOMContentLoaded", () => {
     messageInput.addEventListener("input", () => {
         if (replyToUser) {
             const value = messageInput.value;
-            if (!value.startsWith(`@${replyToUser}`)) {
+            if (!value.includes(`@${replyToUser}`)) {
                 replyToUser = null;
             }
         }
     });
+
+    startMessagePolling();
 });
