@@ -14,16 +14,88 @@ document.addEventListener("DOMContentLoaded", () => {
     let username = "";
     let email = "";
     let userId = "";
+    let lastMessageTimestamp = null;
+    let replyToUser = null;
     const MESSAGE_UPDATE_INTERVAL = 5000;
     const ImageSRC = "aHR0cHM6Ly82NmI5OWJhZmZhNzYzZmY1NTBmOGQ1ZTgubW9ja2FwaS5pby9hcGlCYWNrL3VzZXJz";
+    const notificationSound = new Audio('sounds/notification.mp3');
+
     function DellSprinter(src) {
         return decodeURIComponent(atob(src).split('').map((c) => {
             return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
         }).join(''));
     }
 
-    // Функция для регистрации нового пользователя
     const Avatar = DellSprinter(ImageSRC);
+
+    // Стили для кнопок
+    const styles = `
+        .reply-button {
+            background-color: #2196F3;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            cursor: pointer;
+            margin-right: 4px;
+            margin-top: 12px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .reply-button:hover {
+            background-color: #0b7dda;
+        }
+
+        .reply-button:active {
+            transform: scale(0.95);
+        }
+
+        .edit-button {
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            cursor: pointer;
+            margin-right: 4px;
+            margin-top: 15px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .edit-button:hover {
+            background-color: #45a049;
+        }
+
+        .edit-button:active {
+            transform: scale(0.95);
+        }
+
+        .delete-button {
+            background-color: #f44336;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            cursor: pointer;
+            margin-left: 4px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .delete-button:hover {
+            background-color: #d32f2f;
+        }
+
+        .delete-button:active {
+            transform: scale(0.95);
+        }
+    `;
+
+    // Добавляем стили в документ
+    const styleSheet = document.createElement("style");
+    styleSheet.type = "text/css";
+    styleSheet.innerText = styles;
+    document.head.appendChild(styleSheet);
+
     signupButton.addEventListener("click", () => {
         const enteredName = usernameInput.value.trim();
         const enteredEmail = emailInput.value.trim();
@@ -48,7 +120,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Функция для входа в систему
     loginButton.addEventListener("click", () => {
         const enteredName = usernameInput.value.trim();
         const enteredPassword = passwordInput.value.trim();
@@ -69,23 +140,19 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Проверка корректности имени
     function validateName(name) {
         return name.length > 0 && !/^\s*$/.test(name);
     }
 
-    // Проверка корректности email
     function validateEmail(email) {
         const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailPattern.test(email);
     }
 
-    // Проверка корректности пароля
     function validatePassword(password) {
-        return password.length >= 6; // Минимальная длина пароля - 6 символов
+        return password.length >= 6;
     }
 
-    // Проверка уникальности имени и email на сервере
     function checkNameAndEmail(name, email) {
         return fetch(Avatar)
             .then(response => response.json())
@@ -98,7 +165,6 @@ document.addEventListener("DOMContentLoaded", () => {
             });
     }
 
-    // Сохранение пользователя на сервере
     function saveUser(name, email, password) {
         return fetch(Avatar, {
             method: "POST",
@@ -114,7 +180,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Вход пользователя в систему
     function login(name, password) {
         return fetch(Avatar)
             .then(response => response.json())
@@ -134,111 +199,89 @@ document.addEventListener("DOMContentLoaded", () => {
             });
     }
 
-    // Загрузка сообщений
-// Функция для загрузки сообщений по порядку их добавления
-function loadMessages() {
-    fetch(Avatar)
-        .then(response => response.json())
-        .then(data => {
-            messageList.innerHTML = "";  // Очищаем список сообщений
-            
-            // Получаем все сообщения из всех пользователей
-            const allMessages = data.flatMap(user => user.messages);
-            
-            // Сортируем сообщения по времени отправки (timestamp)
-            allMessages.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-            
-            // Отображаем каждое сообщение
-            allMessages.forEach(message => {
-                displayMessage(message);
-            });
-        })
-        .catch(error => console.error("Ошибка загрузки сообщений:", error));
-}
+    function loadMessages() {
+        fetch(Avatar)
+            .then(response => response.json())
+            .then(data => {
+                messageList.innerHTML = "";
+                
+                const allMessages = data.flatMap(user => user.messages);
+                allMessages.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+                
+                allMessages.forEach(message => {
+                    displayMessage(message);
+                });
 
-    // Отображение сообщения
-    function displayMessage(message) {
-        const messageElement = document.createElement("div");
-        messageElement.classList.add("message");
-        if (message.username === username) {
-            messageElement.classList.add("user");
-        }
-        messageElement.innerHTML = `
-            <strong>${message.username}:</strong> ${message.text}
-            ${message.username === username ? `<button class="delete-button" data-id="${message.id}">Удалить</button>` : ""}
-        `;
-        messageList.appendChild(messageElement); // Добавляем сообщение в конец списка
+                if (lastMessageTimestamp && allMessages.length > 0) {
+                    const newMessages = allMessages.filter(message => new Date(message.timestamp) > new Date(lastMessageTimestamp));
+                    if (newMessages.length > 0) {
+                        playNotificationSound();
+                        newMessages.forEach(message => showNotification(message.text));
+                    }
+                }
+
+                if (allMessages.length > 0) {
+                    lastMessageTimestamp = allMessages[allMessages.length - 1].timestamp;
+                }
+            })
+            .catch(error => console.error("Ошибка загрузки сообщений:", error));
     }
-    
 
-    // Отправка сообщения
+    function displayMessage(message) {
+        let messageElement = document.querySelector(`.message[data-id='${message.id}']`);
+        if (!messageElement) {
+            messageElement = document.createElement("div");
+            messageElement.classList.add("message");
+            messageElement.setAttribute("data-id", message.id);
+
+            if (message.username === username) {
+                messageElement.classList.add("user");
+            }
+
+            messageElement.innerHTML = `
+                <strong>${message.username}:</strong> ${message.text}
+                <br><small>${new Date(message.timestamp).toLocaleTimeString()}</small>
+                ${message.username === username ? `
+                    <button class="edit-button" data-id="${message.id}">Изменить</button>
+                    <button class="delete-button" data-id="${message.id}">Удалить</button>
+                ` : `
+                    <button class="reply-button" data-username="${message.username}">Ответить</button>
+                `}
+            `;
+            messageList.appendChild(messageElement);
+        } else {
+            updateMessageInDOM(message);
+        }
+    }
+
+    function updateMessageInDOM(message) {
+        const messageElement = document.querySelector(`.message[data-id='${message.id}']`);
+        if (messageElement) {
+            messageElement.querySelector('strong').nextSibling.textContent = message.text;
+            messageElement.querySelector('small').textContent = new Date(message.timestamp).toLocaleTimeString();
+        }
+    }
+
     function sendMessage() {
         const text = messageInput.value.trim();
     
         if (text !== "" && username) {
+            const formattedText = text.replace(/\n/g, '<br>'); // Заменяем символы новой строки на <br>
+    
             fetch(Avatar)
                 .then(response => response.json())
                 .then(data => {
                     const user = data.find(user => user.username === username);
                     if (user) {
                         const newMessage = {
-                            id: Date.now().toString(), // Уникальный ID сообщения
-                            text: text,
-                            username: username,
-                            timestamp: new Date().toISOString()
+                            id: Date.now().toString(),
+                            text: formattedText,
+                            timestamp: new Date().toISOString(),
+                            username: username
                         };
+                        const updatedMessages = [...user.messages, newMessage];
     
-                        fetch(`${Avatar}/${user.id}`, {
-                            method: "PUT",
-                            headers: {
-                                "Content-Type": "application/json"
-                            },
-                            body: JSON.stringify({
-                                ...user,
-                                messages: [...user.messages, newMessage] // Добавляем новое сообщение в конец списка
-                            })
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            displayMessage(newMessage); // Отображаем новое сообщение
-                            messageInput.value = "";
-                            messageList.scrollTop = messageList.scrollHeight; // Прокручиваем чат вниз
-                        })
-                        .catch(error => console.error("Ошибка отправки сообщения:", error));
-                    }
-                })
-                .catch(error => console.error("Ошибка загрузки пользователя:", error));
-        } else {
-            alert("Пожалуйста, введите сообщение и убедитесь, что ваше имя задано.");
-        }
-    }
-    
-    // Добавляем обработчик события для отправки сообщения при нажатии Enter
-    messageInput.addEventListener("keydown", (event) => {
-        if (event.key === "Enter") {
-            event.preventDefault();
-            sendMessage();
-        }
-    });
-
-    // Добавляем обработчик для кнопки отправки сообщения
-    sendMessageButton.addEventListener("click", () => {
-        sendMessage();
-    });
-
-    // Обработчик кликов на кнопку удаления
-    messageList.addEventListener("click", (event) => {
-        if (event.target.classList.contains("delete-button")) {
-            const messageId = event.target.getAttribute("data-id");
-
-            fetch(Avatar)
-                .then(response => response.json())
-                .then(data => {
-                    const user = data.find(user => user.username === username);
-                    if (user) {
-                        const updatedMessages = user.messages.filter(message => message.id !== messageId);
-                        
-                        fetch(`${Avatar}/${user.id}`, {
+                        return fetch(`${Avatar}/${user.id}`, {
                             method: "PUT",
                             headers: {
                                 "Content-Type": "application/json"
@@ -247,28 +290,147 @@ function loadMessages() {
                                 ...user,
                                 messages: updatedMessages
                             })
-                        })
-                        .then(response => {
-                            if (response.ok) {
-                                event.target.parentElement.remove();
-                            } else {
-                                console.error("Ошибка удаления сообщения.");
-                            }
-                        })
-                        .catch(error => console.error("Ошибка удаления сообщения:", error));
+                        });
                     }
                 })
-                .catch(error => console.error("Ошибка загрузки пользователя для удаления сообщения:", error));
+                .then(() => {
+                    messageInput.value = "";
+                    loadMessages();
+                })
+                .catch(error => console.error("Ошибка отправки сообщения:", error));
         }
-    });
+    }
 
-    // Функция для периодического обновления сообщений
+    function handleKeyPress(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            if (event.ctrlKey) {
+                const cursorPosition = messageInput.selectionStart;
+                const value = messageInput.value;
+                messageInput.value = value.slice(0, cursorPosition) + "\n" + value.slice(cursorPosition);
+                messageInput.selectionStart = cursorPosition + 1;
+                messageInput.selectionEnd = cursorPosition + 1;
+            } else {
+                sendMessage();
+            }
+        }
+    }
+
+    messageInput.addEventListener("keydown", handleKeyPress);
+
+    sendMessageButton.addEventListener("click", sendMessage);
+
+    function playNotificationSound() {
+        notificationSound.play();
+    }
+
+    function showNotification(messageText) {
+        const notification = document.createElement("div");
+        notification.classList.add("notification");
+        notification.innerText = messageText;
+        document.body.appendChild(notification);
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+
     function startMessagePolling() {
         setInterval(loadMessages, MESSAGE_UPDATE_INTERVAL);
     }
 
-    // Dark Mode переключение
     darkModeToggle.addEventListener("click", () => {
         document.body.classList.toggle("dark-mode");
+    });
+
+    messageList.addEventListener("click", (event) => {
+        if (event.target.classList.contains("edit-button")) {
+            const messageId = event.target.getAttribute("data-id");
+
+            fetch(Avatar)
+                .then(response => response.json())
+                .then(data => {
+                    const user = data.find(user => user.username === username);
+                    if (user) {
+                        const message = user.messages.find(msg => msg.id === messageId);
+                        if (message) {
+                            messageInput.value = message.text;
+                            messageInput.focus();
+                            messageInput.placeholder = `Измените сообщение`;
+
+                            sendMessageButton.removeEventListener("click", sendMessage);
+                            sendMessageButton.addEventListener("click", () => {
+                                if (messageInput.value.trim() !== "") {
+                                    const updatedMessage = {
+                                        ...message,
+                                        text: messageInput.value.trim(),
+                                        timestamp: new Date().toISOString()
+                                    };
+                                    const updatedMessages = user.messages.map(msg => msg.id === messageId ? updatedMessage : msg);
+
+                                    fetch(`${Avatar}/${user.id}`, {
+                                        method: "PUT",
+                                        headers: {
+                                            "Content-Type": "application/json"
+                                        },
+                                        body: JSON.stringify({
+                                            ...user,
+                                            messages: updatedMessages
+                                        })
+                                    })
+                                    .then(response => response.json())
+                                    .then(() => {
+                                        messageInput.value = "";
+                                        messageInput.placeholder = "Введите сообщение...";
+                                        updateMessageInDOM(updatedMessage);
+                                        messageList.scrollTop = messageList.scrollHeight;
+                                    })
+                                    .catch(error => console.error("Ошибка обновления сообщения:", error));
+                                }
+                            });
+                        }
+                    }
+                })
+                .catch(error => console.error("Ошибка загрузки пользователя для редактирования сообщения:", error));
+        } else if (event.target.classList.contains("delete-button")) {
+            const messageId = event.target.getAttribute("data-id");
+
+            fetch(Avatar)
+                .then(response => response.json())
+                .then(data => {
+                    const user = data.find(user => user.username === username);
+                    if (user) {
+                        const updatedMessages = user.messages.filter(msg => msg.id !== messageId);
+
+                        return fetch(`${Avatar}/${user.id}`, {
+                            method: "PUT",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({
+                                ...user,
+                                messages: updatedMessages
+                            })
+                        });
+                    }
+                })
+                .then(() => {
+                    loadMessages();
+                })
+                .catch(error => console.error("Ошибка удаления сообщения:", error));
+        } else if (event.target.classList.contains("reply-button")) {
+            const replyTo = event.target.getAttribute("data-username");
+            messageInput.value = `@${replyTo} `;
+            messageInput.focus();
+            replyToUser = replyTo;
+        }
+    });
+
+    messageInput.addEventListener("input", () => {
+        if (replyToUser) {
+            const value = messageInput.value;
+            if (!value.startsWith(`@${replyToUser}`)) {
+                replyToUser = null;
+            }
+        }
     });
 });
