@@ -204,28 +204,28 @@ document.addEventListener("DOMContentLoaded", () => {
             .then(response => response.json())
             .then(data => {
                 messageList.innerHTML = "";
-                
+    
                 const allMessages = data.flatMap(user => user.messages);
                 allMessages.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-                
+    
                 allMessages.forEach(message => {
                     displayMessage(message);
                 });
-
-                if (lastMessageTimestamp && allMessages.length > 0) {
+    
+                if (lastMessageTimestamp) {
                     const newMessages = allMessages.filter(message => new Date(message.timestamp) > new Date(lastMessageTimestamp));
                     if (newMessages.length > 0) {
                         playNotificationSound();
-                        newMessages.forEach(message => showNotification(message.text));
+                        newMessages.forEach(message => showNotification(`Новое сообщение от ${message.username}: ${message.text}`));
                     }
                 }
-
+    
                 if (allMessages.length > 0) {
                     lastMessageTimestamp = allMessages[allMessages.length - 1].timestamp;
                 }
             })
             .catch(error => console.error("Ошибка загрузки сообщений:", error));
-    }
+    }    
 
     // Функция для добавления форматирования
     function applyFormatting(startTag, endTag) {
@@ -286,7 +286,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 `}
             `;
             messageList.appendChild(messageElement);
-        } else {
+        } else {    
             updateMessageInDOM(message);
         }
     }
@@ -362,15 +362,16 @@ document.addEventListener("DOMContentLoaded", () => {
         notificationSound.play();
     }
 
-    function showNotification(messageText) {
-        const notification = document.createElement("div");
-        notification.classList.add("notification");
-        notification.innerText = messageText;
-        document.body.appendChild(notification);
-        setTimeout(() => {
-            notification.remove();
-        }, 3000);
-    }
+function showNotification(messageText) {
+    const notification = document.createElement("div");
+    notification.classList.add("notification");
+    notification.innerText = messageText;
+    document.body.appendChild(notification);
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
 
     function startMessagePolling() {
         setInterval(loadMessages, MESSAGE_UPDATE_INTERVAL);
