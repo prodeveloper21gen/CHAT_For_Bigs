@@ -221,11 +221,30 @@ body {
 .message .delete-button:hover {
     background-color: #cc0000;
 }
+/* Стили для форматированного текста */
+.bold {
+    font-weight: bold;
+}
+
+.italic {
+    font-style: italic;
+}
+
+.code-block {
+    background-color: #000000;
+    border-radius: 4px;
+    padding: 8px;
+    font-family: monospace;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
 @media (max-width:512px){
     .message-input-container {
         width: 90%;
         top: 90%; 
         background-color: #00000000;
+        gap: 5px;
     }
     .message-input-container button{
         margin-right: 10px;
@@ -238,5 +257,14 @@ body {
         flex-direction: column;
         gap: 10px;
         max-height: 94.5%;
+    }
+    .message-input-container button {
+        padding: 10px 10px;
+        border: none;
+        border-radius: 20px;
+        background-color: #007bff;
+        color: #fff;
+        cursor: pointer;
+        margin: 0;
     }
 }
