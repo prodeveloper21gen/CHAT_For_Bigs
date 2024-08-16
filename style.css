@@ -1,6 +1,6 @@
 body {
     font-family: Arial, sans-serif;
-    background-image: url("https://mrwallpaper.com/images/hd/colorful-planets-4k-space-erd5m7yzj9vpox9r.jpg");
+    background-image: url("https://image-0.uhdpaper.com/wallpaper/windows-11-logo-colorful-background-digital-art-4k-wallpaper-uhdpaper.com-127@0@h.jpg");
     background-position: center;
     background-size: cover;
     margin: 0;
@@ -72,6 +72,8 @@ body {
 }
 
 .message-list {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(0, 255, 242) rgba(0, 0, 0, 0);
     background-position: center;
     background-size: cover;
     flex-grow: 1;
@@ -112,8 +114,25 @@ body {
     align-items: center;
     gap: 10px;
 }
+#messageInput {
+    width: 100%;
+    height: 50px; /* Размер высоты можно настроить по необходимости */
+    padding: 10px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    resize: none; /* Запретить изменение размера */
+    background-color: rgba(0, 0, 0, 0.452);
+    color: white;
+    font-size: 20px;
+}
+
+#messageInput::placeholder {
+    color: white;
+}
 
 .message-input-container input {
+    font-size: 20px;
     position: sticky;
     flex-grow: 1;
     padding: 10px;
