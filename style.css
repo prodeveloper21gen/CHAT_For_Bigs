@@ -238,7 +238,24 @@ body {
     white-space: pre-wrap;
     word-wrap: break-word;
 }
+.copy-button {
+    background-color: #ffeb3b;
+    color: #000;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 8px;
+    cursor: pointer;
+    margin-left: 4px;
+    transition: background-color 0.3s, transform 0.2s;
+}
 
+.copy-button:hover {
+    background-color: #fdd835;
+}
+
+.copy-button:active {
+    transform: scale(0.95);
+}
 @media (max-width:512px){
     .message-input-container {
         width: 90%;
